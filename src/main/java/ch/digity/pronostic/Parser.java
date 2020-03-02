@@ -24,12 +24,13 @@ public class Parser {
         this.sheet = sheet;
     }
 
-    public void parseSheet(String maxUntil) {
+    public void parseSheet() {
         for (final Row row : sheet.getRowList()) {
             String displayText = row.getCellByIndex(0).getDisplayText();
             Optional<Date> dateFromText = getDateFromText(displayText);
-            dateFromText.ifPresent(date -> days.add(CompetitionDayFactory.create(sheet, date, row.getRowIndex())));
-            if (displayText.equals(maxUntil)) {
+            try {
+                dateFromText.ifPresent(date -> days.add(CompetitionDayFactory.create(sheet, date, row.getRowIndex())));
+            } catch (ScoreIncompleteException e) {
                 break;
             }
         }

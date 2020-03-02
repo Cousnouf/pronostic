@@ -11,13 +11,13 @@ public class Pronostic {
 
     PronosticStatus compute() {
         if (wanted == null) {
-            return PronosticStatus.LOSE;
+            return PronosticStatus.WRONG;
         }
         if (result.equals(wanted)) {
-            return PronosticStatus.WIN;
+            return PronosticStatus.EXACT_SCORE;
         } else if (result.isSameEndingAs(wanted)) {
-            return PronosticStatus.SEMI_WIN;
+            return PronosticStatus.GOOD_END;
         }
-        return PronosticStatus.LOSE;
+        return PronosticStatus.WRONG;
     }
 }

@@ -19,8 +19,12 @@ public class Calculator {
         }
     }
 
+    public Ranking getCurrentRank() {
+        return RankingFactory.create(dayScores, dayScores.size());
+    }
+
     public Statistics produceStats() {
-        return produceStats(dayScores.size() - 2, dayScores.size() - 1);
+        return produceStats(dayScores.size() - 1, dayScores.size());
     }
 
     public Statistics produceStats(int dayFrom, int dayTo) {

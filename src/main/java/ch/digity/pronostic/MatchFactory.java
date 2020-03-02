@@ -19,7 +19,7 @@ public class MatchFactory {
         Cell scoreCell = row.getCellByIndex(2);
         final Score score = ScoreFactory.create(scoreCell.getDisplayText());
         if (score == null) {
-            return null;
+            throw new ScoreIncompleteException();
         }
         return new Match(row, matcher.group(1).trim(), matcher.group(2).trim(), score);
     }
