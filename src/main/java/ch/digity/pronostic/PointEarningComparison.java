@@ -6,7 +6,7 @@ import java.util.Map;
 public class PointEarningComparison {
     private final Ranking from;
     private final Ranking to;
-    private Map<Player, Integer> pointEarning = new HashMap<>();
+    Map<Player, Integer> pointEarning = new HashMap<>();
 
     public PointEarningComparison(Ranking from, Ranking to) {
         this.from = from;
