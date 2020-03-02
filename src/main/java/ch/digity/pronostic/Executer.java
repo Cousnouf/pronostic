@@ -25,23 +25,20 @@ public class Executer {
 
         Calculator calculator = new Calculator(parser);
         calculator.calculate();
-        writePositions(document.appendSheet("Rankings"), calculator.getCurrentRank().positions, null, "Points");
+        writeRanking(document.appendSheet("Rankings"), calculator.getCurrentRank().positions, 0);
 
         Statistics lastDayStatistics = calculator.produceStats();
         Statistics otherDay = calculator.produceStats(dayFrom, dayTo);
 
-        writePositions(document.appendSheet("Rank evolution last day"), lastDayStatistics.rankingComparison.toPositionList(),
-                       lastDayStatistics.pointsEarningComparison, "Rank evolution");
-        writePositions(document.appendSheet(String.format("Rank evolution custom days (day %d - day %d)", dayFrom, dayTo)),
-                       otherDay.rankingComparison.toPositionList(),
-                       otherDay.pointsEarningComparison, "Rank evolution");
+        writeStatistics(document.appendSheet("Rank evolution last day"), lastDayStatistics);
+        writeStatistics(document.appendSheet(String.format("Rank evolution custom days (day %d - day %d)", dayFrom, dayTo)), otherDay);
 
         Table allRankings = document.appendSheet("All rankings");
         for (int dayUntil = 1; dayUntil <= calculator.dayScores.size(); dayUntil++) {
             Ranking ranking = RankingFactory.create(calculator.dayScores, dayUntil);
             int columnIndex = (dayUntil - 1) * 4;
             allRankings.getRowByIndex(0).getCellByIndex(columnIndex).setStringValue("Day " + dayUntil);
-            writePositions(allRankings, ranking.positions, null, "Points", columnIndex);
+            writeRanking(allRankings, ranking.positions, columnIndex);
         }
 
         SheetUpdater sheetUpdater = new SheetUpdater(calculator);
@@ -54,35 +51,37 @@ public class Executer {
         return message;
     }
 
-    private void writePositions(Table rankEvolutionLastDay, List<Position> toPositionList,
-                                PointEarningComparison pointsEarningComparison,
-                                String valueTitle) {
-        writePositions(rankEvolutionLastDay, toPositionList, pointsEarningComparison, valueTitle, 0);
+    private void writeStatistics(Table rankEvolutionLastDay, Statistics statistics) {
+        int index = 1;
+        Row row = rankEvolutionLastDay.appendRow();
+        row.getCellByIndex(0).setStringValue("Rank");
+        row.getCellByIndex(1).setStringValue("Name");
+        row.getCellByIndex(2).setStringValue("Points earned");
+        row.getCellByIndex(3).setStringValue("Rank evolution");
+        for (final Progression progression : statistics.getProgressions()) {
+            Row newRow = rankEvolutionLastDay.appendRow();
+            newRow.getCellByIndex(0).setStringValue((index++) + "");
+            newRow.getCellByIndex(1).setStringValue(progression.player.name);
+            newRow.getCellByIndex(2).setStringValue(progression.pointsEarned + "");
+            newRow.getCellByIndex(3).setStringValue(progression.ranksEarned + "");
+        }
     }
 
-    private void writePositions(Table rankEvolutionLastDay, List<Position> toPositionList,
-                                PointEarningComparison pointsEarningComparison, String valueTitle, int offset) {
+    private void writeRanking(Table table, List<Position> toPositionList, int offset) {
         int index = 1;
-        Row row = rankEvolutionLastDay.getRowByIndex(ROW_START_INDEX);
+        Row row = table.getRowByIndex(ROW_START_INDEX);
         row.getCellByIndex(offset).setStringValue("Rank");
         row.getCellByIndex(offset + 1).setStringValue("Name");
-        row.getCellByIndex(offset + 2).setStringValue(valueTitle);
-        if (pointsEarningComparison != null) {
-            row.getCellByIndex(offset + 3).setStringValue("Points earned");
-        }
+        row.getCellByIndex(offset + 2).setStringValue("Points");
         for (final Position position : toPositionList) {
-            Row newRow = rankEvolutionLastDay.getRowByIndex(ROW_START_INDEX + index);
+            Row newRow = table.getRowByIndex(ROW_START_INDEX + index);
             newRow.getCellByIndex(offset).setStringValue((index++) + "");
             newRow.getCellByIndex(offset + 1).setStringValue(position.player.name);
             newRow.getCellByIndex(offset + 2).setStringValue(position.points + "");
-            if (pointsEarningComparison != null) {
-                newRow.getCellByIndex(offset + 3).setStringValue(pointsEarningComparison.pointEarning.get(position.player) + "");
-            }
         }
-
     }
 
     public static void main(String[] args) throws Exception {
-        new Executer().execute(new File("/home/xsimci/Downloads/pronostic/results.ods"), 1, 15);
+        new Executer().execute(new File("/home/xsimci/Downloads/pronostic/results.ods"), 8, 15);
     }
 }
